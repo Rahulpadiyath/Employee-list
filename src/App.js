@@ -1,25 +1,76 @@
-import logo from './logo.svg';
+import { render } from '@testing-library/react';
+import { Component } from 'react';
 import './App.css';
+import CardList from './components/cardlist/cardlist.component';
+import SearchBox from './components/search/searchbox.component';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+class App extends Component  {
+   constructor(){
+     super();
+
+     this.state = {
+       Employees: [],
+       searchField: ''
+      
+     };
+    }
+     componentDidMount(){
+       fetch('https://jsonplaceholder.typicode.com/users')
+       .then((response)=>response.json() )
+       .then((users) => 
+       this.setState(
+         ()=> {
+           return{Employees :users};
+      },
+      () =>{
+        console.log(this.state)
+      }
+      ))
+     }
+
+     onSearchChange =(event) => {
+      const searchField = event.target.value.toLocaleLowerCase();
+      
+        this.setState(()=>{
+          return {searchField};
+        });
+    };
+     
+  render () {
+     
+      const {Employees,searchField} = this.state;
+      const {onSearchChange} = this;
+
+
+    const filterEmployees = Employees.filter((Employees) => {
+      return Employees.name.toLocaleLowerCase().includes(searchField);
+    });
+
+    return (
+      <div className='App'>
+        <SearchBox 
+        className ='Employees-search-Box'
+        onChangeHandler = {onSearchChange} 
+        placeholder ='Search Employees'/>
+        {/* <input className='search-box' type='search' placeholder='search employees'
+         onChange={searchField}
+         /> */}
+        {/* {{
+          filterEmployees.map((Employees) =>{
+           return<div key ={Employees.id}>
+           <h1>{Employees.name}</h1></div>
+        }) } */}
+      
+        
+        <CardList Employees ={filterEmployees}/>
+      
+      </div>
+  
+      );
+
+  }
+ 
 }
 
 export default App;
